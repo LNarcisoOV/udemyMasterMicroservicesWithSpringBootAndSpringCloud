@@ -6,6 +6,9 @@ public class User {
 	private Integer id;
 	private String name;
 	private Date birthDate;
+	
+	public User(){
+	}
 
 	public User(Integer id, String name, Date birthDate) {
 		super();
