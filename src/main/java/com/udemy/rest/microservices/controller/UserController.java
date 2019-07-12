@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,13 +19,18 @@ public class UserController{
 	@Autowired
 	private UserDao userDao;
 
-	@GetMapping(path="/findAll")
+	@GetMapping(path="/")
 	public List<User> findAll(){
 		return userDao.findAll();
 	}
 	
-	@GetMapping(path="/find/{id}")
-	public User findAll(@PathVariable int id){
+	@PostMapping(path="/")
+	public void save(@PathVariable User user){
+		userDao.save(user);
+	}
+	
+	@GetMapping(path="/{id}")
+	public User findBy(@PathVariable int id){
 		return userDao.findBy(id);
 	}
 }
