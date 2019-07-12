@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.udemy.rest.microservices.dao.UserDao;
+import com.udemy.rest.microservices.exception.UserNotFoundException;
 import com.udemy.rest.microservices.model.User;
 
 @RestController
@@ -23,12 +24,12 @@ public class UserController{
 	@Autowired
 	private UserDao userDao;
 
-	@GetMapping(path="")
+	@GetMapping()
 	public List<User> findAll(){
 		return userDao.findAll();
 	}
 	
-	@PostMapping(path="")
+	@PostMapping()
 	public ResponseEntity<User> save(@RequestBody User user){
 		User savedUser = userDao.save(user);
 		URI location = ServletUriComponentsBuilder
@@ -41,6 +42,10 @@ public class UserController{
 	
 	@GetMapping(path="/{id}")
 	public User findBy(@PathVariable int id){
-		return userDao.findBy(id);
+		User user = userDao.findBy(id);
+		if(user == null){
+			throw new UserNotFoundException("User not found for id: "+ id);
+		}
+		return user;
 	}
 }

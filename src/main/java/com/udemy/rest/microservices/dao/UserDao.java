@@ -3,6 +3,7 @@ package com.udemy.rest.microservices.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,10 @@ public class UserDao {
 	}
 	
 	public User findBy(int id){
-		return users.stream().filter(u -> u.getId().equals(id)).findFirst().get();
+		try{
+			return users.stream().filter(u -> u.getId().equals(id)).findFirst().get();
+		}catch(NoSuchElementException e){
+			return null;
+		}
 	}
 }
