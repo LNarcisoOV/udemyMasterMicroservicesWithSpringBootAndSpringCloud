@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.udemy.rest.microservices.model.HelloWorldBean;
 
 @RestController
-public class HelloWorldController extends AbstractController{
+public class HelloWorldController{
 
 	@GetMapping(path="/helloWorld")
 	public String helloWorld() {
