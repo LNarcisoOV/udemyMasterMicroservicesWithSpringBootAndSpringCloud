@@ -12,8 +12,8 @@ import com.udemy.rest.microservices.model.User;
 @Component
 public class UserDao {
 	private static List<User> users = new ArrayList<User>();
-	
-	static{
+
+	static {
 		users.add(new User(1, "Adam", new Date()));
 		users.add(new User(2, "Eve", new Date()));
 		users.add(new User(3, "Jack", new Date()));
@@ -21,20 +21,30 @@ public class UserDao {
 		users.add(new User(5, "Maria", new Date()));
 		users.add(new User(6, "Silvia", new Date()));
 	}
-	
-	public List<User> findAll(){
+
+	public List<User> findAll() {
 		return users;
 	}
-	
-	public User save(User user){
+
+	public User save(User user) {
 		users.add(user);
 		return user;
 	}
-	
-	public User findBy(int id){
-		try{
+
+	public User findBy(int id) {
+		try {
 			return users.stream().filter(u -> u.getId().equals(id)).findFirst().get();
-		}catch(NoSuchElementException e){
+		} catch (NoSuchElementException e) {
+			return null;
+		}
+	}
+
+	public User deleteBy(int id) {
+		try {
+			User userToBeDeleted = users.stream().filter(u -> u.getId().equals(id)).findFirst().get();
+			users.remove(userToBeDeleted);
+			return userToBeDeleted;
+		} catch (NoSuchElementException e) {
 			return null;
 		}
 	}
