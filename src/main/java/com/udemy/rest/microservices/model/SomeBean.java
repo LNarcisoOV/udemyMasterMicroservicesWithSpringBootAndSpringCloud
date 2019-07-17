@@ -1,12 +1,11 @@
 package com.udemy.rest.microservices.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFilter;
 
+@JsonFilter("SomeBeanFilter")
 public class SomeBean {
 	private String field1;
 	private String field2;
-	
-	@JsonIgnore
 	private String field3;
 
 	public SomeBean(String value1, String value2, String value3) {
