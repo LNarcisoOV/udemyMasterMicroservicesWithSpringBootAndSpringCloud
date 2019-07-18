@@ -2,6 +2,7 @@ package com.udemy.rest.microservices.controller;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.udemy.rest.microservices.dao.UserDao;
 import com.udemy.rest.microservices.exception.UserNotFoundException;
 import com.udemy.rest.microservices.model.User;
+import com.udemy.rest.microservices.repository.UserRepository;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -29,6 +31,30 @@ public class UserController {
 
 	@Autowired
 	private UserDao userDao;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	@GetMapping("/jpa")
+	public List<User> findAllWithJPA() {
+		return userRepository.findAll();
+	}
+	
+	@GetMapping(path = "/jpa/{id}")
+	public Resource<User> findUserJPABy(@PathVariable int id) {
+		Optional<User> user = userRepository.findById(id);
+		if (!user.isPresent()) {
+			throw new UserNotFoundException("User not found for id: " + id);
+		}
+
+		// HATEOAS
+		Resource<User> resource = new Resource<User>(user.get());
+		ControllerLinkBuilder linkTo = ControllerLinkBuilder
+				.linkTo(DummyInvocationUtils.methodOn(this.getClass()).findUserJPABy(id));
+		resource.add(linkTo.withRel("findUserJPABy"));
+		
+		return resource;
+	}
 
 	@GetMapping()
 	public List<User> findAll() {
@@ -54,7 +80,7 @@ public class UserController {
 		Resource<User> resource = new Resource<User>(user);
 		ControllerLinkBuilder linkTo = ControllerLinkBuilder
 				.linkTo(DummyInvocationUtils.methodOn(this.getClass()).findBy(id));
-		resource.add(linkTo.withRel("useById"));
+		resource.add(linkTo.withRel("userById"));
 		
 		return resource;
 	}
@@ -70,7 +96,7 @@ public class UserController {
 		Resource resource = new Resource<User>(deletedUser);
 		ControllerLinkBuilder linkTo = ControllerLinkBuilder
 				.linkTo(DummyInvocationUtils.methodOn(this.getClass()).deleteBy(id));
-		resource.add(linkTo.withRel("deleteById"));
+		resource.add(linkTo.withRel("deleteUserById"));
 
 		return resource;
 	}
