@@ -22,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.udemy.rest.microservices.dao.UserDao;
 import com.udemy.rest.microservices.exception.UserNotFoundException;
+import com.udemy.rest.microservices.model.Post;
 import com.udemy.rest.microservices.model.User;
 import com.udemy.rest.microservices.repository.UserRepository;
 
@@ -31,15 +32,17 @@ public class UserController {
 
 	@Autowired
 	private UserDao userDao;
-	
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
+	// JPA'S METHODS
+
 	@GetMapping("/jpa")
-	public List<User> findAllWithJPA() {
+	public List<User> findAllUsersWithJPA() {
 		return userRepository.findAll();
 	}
-	
+
 	@GetMapping(path = "/jpa/{id}")
 	public Resource<User> findUserJPABy(@PathVariable int id) {
 		Optional<User> user = userRepository.findById(id);
@@ -52,9 +55,34 @@ public class UserController {
 		ControllerLinkBuilder linkTo = ControllerLinkBuilder
 				.linkTo(DummyInvocationUtils.methodOn(this.getClass()).findUserJPABy(id));
 		resource.add(linkTo.withRel("findUserJPABy"));
-		
+
 		return resource;
 	}
+
+	@PostMapping(path = "/jpa")
+	public ResponseEntity<User> saveUserJPA(@Valid @RequestBody User user) {
+		User savedUser = userRepository.save(user);
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/jpa/{id}")
+				.buildAndExpand(savedUser.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+
+	@DeleteMapping(path = "/jpa/{id}")
+	public void deleteUserJPABy(@PathVariable int id) {
+		userRepository.deleteById(id);
+	}
+
+	@GetMapping("/jpa/{id}/posts")
+	public List<Post> findAllUsersPostsWithJPA(@PathVariable Integer id) {
+		Optional<User> optionalUser = userRepository.findById(id);
+		if (!optionalUser.isPresent()) {
+			throw new UserNotFoundException("User not found for id: " + id);
+		}
+
+		return optionalUser.get().getPosts();
+	}
+
+	// MEMORY'S METHODS
 
 	@GetMapping()
 	public List<User> findAll() {
@@ -64,8 +92,8 @@ public class UserController {
 	@PostMapping()
 	public ResponseEntity<User> save(@Valid @RequestBody User user) {
 		User savedUser = userDao.save(user);
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedUser.getId())
-				.toUri();
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(savedUser.getId()).toUri();
 		return ResponseEntity.created(location).build();
 	}
 
@@ -81,7 +109,7 @@ public class UserController {
 		ControllerLinkBuilder linkTo = ControllerLinkBuilder
 				.linkTo(DummyInvocationUtils.methodOn(this.getClass()).findBy(id));
 		resource.add(linkTo.withRel("userById"));
-		
+
 		return resource;
 	}
 
