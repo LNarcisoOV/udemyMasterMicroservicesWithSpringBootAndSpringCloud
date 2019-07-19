@@ -24,6 +24,7 @@ import com.udemy.rest.microservices.dao.UserDao;
 import com.udemy.rest.microservices.exception.UserNotFoundException;
 import com.udemy.rest.microservices.model.Post;
 import com.udemy.rest.microservices.model.User;
+import com.udemy.rest.microservices.repository.PostRepository;
 import com.udemy.rest.microservices.repository.UserRepository;
 
 @RestController
@@ -35,6 +36,9 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private PostRepository postRepository;
 
 	// JPA'S METHODS
 
@@ -60,7 +64,7 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/jpa")
-	public ResponseEntity<User> saveUserJPA(@Valid @RequestBody User user) {
+	public ResponseEntity<User> saveUserWithJPA(@Valid @RequestBody User user) {
 		User savedUser = userRepository.save(user);
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/jpa/{id}")
 				.buildAndExpand(savedUser.getId()).toUri();
@@ -82,6 +86,23 @@ public class UserController {
 		return optionalUser.get().getPosts();
 	}
 
+	@PostMapping(path = "/jpa/{id}/posts")
+	public ResponseEntity<User> savePostForAUserWithJPA(@PathVariable Integer id, @RequestBody Post post) {
+		Optional<User> optionalUser = userRepository.findById(id);
+		if (!optionalUser.isPresent()) {
+			throw new UserNotFoundException("User not found for id: " + id);
+		}
+		
+		User user = optionalUser.get();
+		post.setUser(user);
+		postRepository.save(post);
+		
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/jpa/{id}/posts")
+				.buildAndExpand(post.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+	
+	
 	// MEMORY'S METHODS
 
 	@GetMapping()
